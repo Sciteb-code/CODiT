@@ -1,5 +1,9 @@
 import pandas as pd
+import numpy as np
 import logging
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
+plt.rcParams["figure.figsize"] = [12, 5]
 
 from population.covid import PersonCovid
 from population.population import FixedNetworkPopulation
@@ -68,6 +72,7 @@ class Outbreak:
         self.step_num += 1
 
     def record_state(self):
+        # logging.info("Outbreak.record_state")
         self.recorder.record_step(self)
 
     def plot(self, **kwargs):
@@ -80,7 +85,9 @@ class OutbreakRecorder:
         self.realized_r0 = None
 
     def record_step(self, o):
+
         N = len(o.pop.people)
+        # logging.info(f"OutbreakRecorder.record_step, population={N}")
         # pot_haz = sum([covid_hazard(person.age) for person in o.pop.people])
         # tot_haz = sum([covid_hazard(person.age) for person in o.pop.infected()])
         all_completed_tests = [t for q in o.society.queues for t in q.completed_tests]
@@ -93,9 +100,23 @@ class OutbreakRecorder:
                 # len([t for t in all_completed_tests if t.positive]) / N / o.time_increment,
                 # tot_haz/pot_haz,
                 ]
-        if o.step_num % (50 * o.society.episodes_per_day) == 1 or (o.step_num == o.n_periods):
+        if o.step_num % (14 * o.society.episodes_per_day) == 1 or (o.step_num == o.n_periods):
             logging.info(f"Day {int(step[0])}, prop infected is {step[1]:2.2f}, "
                          f"prop infectious is {step[2]:2.4f}")
+            if o.pop.count_infectious() > 0:
+                coord = [[p.home.coordinate['lon'], p.home.coordinate['lat']] for p in o.pop.people if
+                         p.infectious]
+                coord_column_list = list(zip(*coord))
+                heatmap, xedges, yedges = np.histogram2d(coord_column_list[0], coord_column_list[1], bins=150)
+                extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+                plt.clf()
+                fig = plt.figure()
+                plt.title(f'Day {int(step[0])} Infectious in simulated Leeds')
+                plt.xlabel('latitude')
+                plt.ylabel('longitude')
+                plt.imshow(heatmap.T, extent=extent, origin='lower', vmin=0, vmax=50)
+                plt.show()
+
         self.story.append(step)
 
     def plot(self, **kwargs):

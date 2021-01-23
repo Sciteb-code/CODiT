@@ -4,8 +4,8 @@ from population.person import Person
 
 
 class PersonCovid(Person):
-    def __init__(self, society, config=None, name=None):
-        Person.__init__(self, society, config=config, name=name)
+    def __init__(self, society, config=None, name=None, home=None):
+        Person.__init__(self, society, config=config, name=name, home=home)
         self._symptomatic = False
         self.has_tested_positive = False
 

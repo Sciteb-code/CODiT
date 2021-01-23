@@ -64,7 +64,7 @@ def poisson_house(n, weight, lam, case=None, weight_2=None):
     :param n: is number of households to create based on desired rate
     :param weight: these weights are used to determine the ages of the inhabitants
     :param lam: lam we want to use in the poisson. i.e. the average size of household
-    :param case: if not None this determines the number of people to create and give an age
+    :param case: if not None this determines the number of people to create and give an age, for households with kids, this case is usually the number of parents
     :param weight_2: if not None these are desired weights (age range) for case
     :return: a list of households, in turn each household is a list of people (with an age)
     """
